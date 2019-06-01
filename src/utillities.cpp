@@ -13,7 +13,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * 
  * 
- * original author: sillydan1
+ * original author: sillydan1 <https://github.com/sillydan1>
  * */
 /*
  * Implementation file for avr-g++ extensions
