@@ -15,40 +15,38 @@
  * 
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-#ifndef UNIQUE_PTR_HPP
-#define UNIQUE_PTR_HPP
-#include <utillities.h>
+#ifndef SHARED_PTR_HPP
+#define SHARED_PTR_HPP
 
 template<typename T>
-class unique_ptr {
+class shared_ptr {
 public:
-	explicit unique_ptr(T* res) : resource{res} 
+	shared_ptr(T* res) : resource{res}, count{new unsigned int(1)}
 	{ }
-	~unique_ptr() { release_resource(); }
-	
-	inline T* const operator->() const { return resource; }
-	inline T& operator*() const { return *resource; }
-	
-	void move(unique_ptr<T>& other) { // Move 'this' into 'other'
-		other.release_resource();
-		other.resource = resource;
-		resource = NULL;
+	shared_ptr(const shared_ptr<T>& other) : resource{other.resource}, count{other.count}
+	{ (*count)++; }
+	~shared_ptr() {
+		
 	}
 	
-	inline T* const get() const { return resource; }
+	void move(shared_ptr<T>& other) {
+		// Simply move the resource. Since we're moving, we shouldn't count up
+	}
 	
 private:
 	T* resource;
-	// Disable default construction and copying
-	unique_ptr() = delete;
-	unique_ptr(const unique_ptr<T>&) = delete;
-
+	unsigned int* count; // TODO: Support weak pointers
+	
 	void release_resource() {
-		delete resource;
-		// --- ↓ --- //
-		resource->~T();
-		free(resource);
+		if(--*count <= 0) {
+			delete resource;
+			// --- ↓ --- //
+			resource->~T();
+			free(resource);
+		}
 	}
+	
+	shared_ptr() = delete;
 };
 
-#endif // UNIQUE_PTR_HPP
+#endif // SHARED_PTR_HPP
