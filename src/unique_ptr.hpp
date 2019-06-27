@@ -17,23 +17,35 @@
  * */
 #ifndef UNIQUE_PTR
 #define UNIQUE_PTR
+#include <utillities.h>
 
 template<typename T>
 class unique_ptr {
 	
+	explicit unique_ptr(T* res) : resource{res} 
+	{ }
+	~unique_ptr() { release_resource(); }
+	
 	inline T* const operator->() const { return resource; }
 	inline T& operator*() const { return *resource; }
 	
-	void move(unique_ptr<T>& other) {
-		
+	void move(unique_ptr<T>& other) { // Move 'this' into 'other'
+		other.release_resource();
+		other.resource = resource;
+		resource = NULL;
 	}
 	
 	inline T* const get() const { return resource; }
 	
 private:
 	T* resource;
-	void freeResource() {
+	// Disable default construction and copying
+	unique_ptr() = delete;
+	unique_ptr(const unique_ptr<T>&) = delete;
+
+	void release_resource() {
 		delete resource;
+		// --- ↓ --- //
 		resource->T();
 		free(resource);
 	}
