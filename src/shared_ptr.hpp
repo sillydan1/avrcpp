@@ -17,36 +17,43 @@
  * */
 #ifndef SHARED_PTR_HPP
 #define SHARED_PTR_HPP
+#include <utillities.h>
 
-template<typename T>
-class shared_ptr {
-public:
-	shared_ptr(T* res) : resource{res}, count{new unsigned int(1)}
-	{ }
-	shared_ptr(const shared_ptr<T>& other) : resource{other.resource}, count{other.count}
-	{ (*count)++; }
-	~shared_ptr() {
-		
-	}
-	
-	void move(shared_ptr<T>& other) {
-		// Simply move the resource. Since we're moving, we shouldn't count up
-	}
-	
-private:
-	T* resource;
-	unsigned int* count; // TODO: Support weak pointers
-	
-	void release_resource() {
-		if(--*count <= 0) {
-			delete resource;
-			// --- ↓ --- //
-			resource->~T();
-			free(resource);
+namespace std {
+
+	template<typename T>
+	class shared_ptr {
+	public:
+		shared_ptr(T* res) : resource{res}, count{new unsigned int(1)}
+		{ }
+		shared_ptr(const shared_ptr<T>& other) : resource{other.resource}, count{other.count}
+		{ (*count)++; }
+		~shared_ptr() {
+			
 		}
-	}
+		
+		void move(shared_ptr<T>& other) {
+			// Simply move the resource. Since we're moving, we shouldn't count up
+		}
+		
+	private:
+		T* resource;
+		unsigned int* count; // TODO: Support weak pointers
+		
+		void release_resource() {
+			if(--*count <= 0) {
+				delete resource;
+				// --- ↓ --- //
+				resource->~T();
+				free(resource);
+			}
+		}
+		
+		shared_ptr() = delete;
+	};
 	
-	shared_ptr() = delete;
-};
+}
+
+#define MAKESHARED(type, ...) std::shared_ptr<type>(new type(__VA_ARGS__))
 
 #endif // SHARED_PTR_HPP

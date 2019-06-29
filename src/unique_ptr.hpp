@@ -19,36 +19,42 @@
 #define UNIQUE_PTR_HPP
 #include <utillities.h>
 
-template<typename T>
-class unique_ptr {
-public:
-	explicit unique_ptr(T* res) : resource{res} 
-	{ }
-	~unique_ptr() { release_resource(); }
-	
-	inline T* const operator->() const { return resource; }
-	inline T& operator*() const { return *resource; }
-	
-	void move(unique_ptr<T>& other) { // Move 'this' into 'other'
-		other.release_resource();
-		other.resource = resource;
-		resource = NULL;
-	}
-	
-	inline T* const get() const { return resource; }
-	
-private:
-	T* resource;
-	// Disable default construction and copying
-	unique_ptr() = delete;
-	unique_ptr(const unique_ptr<T>&) = delete;
+namespace std {
 
-	void release_resource() {
-		delete resource;
-		// --- ↓ --- //
-		resource->~T();
-		free(resource);
-	}
-};
+	template<typename T>
+	class unique_ptr {
+	public:
+		explicit unique_ptr(T* res) : resource{res} 
+		{ }
+		~unique_ptr() { release_resource(); }
+		
+		inline T* const operator->() const { return resource; }
+		inline T& operator*() const { return *resource; }
+		
+		void move(unique_ptr<T>& other) { // Move 'this' into 'other'
+			other.release_resource();
+			other.resource = resource;
+			resource = NULL;
+		}
+		
+		inline T* const get() const { return resource; }
+		
+	private:
+		T* resource;
+		// Disable default construction and copying
+		unique_ptr() = delete;
+		unique_ptr(const unique_ptr<T>&) = delete;
+
+		void release_resource() {
+			delete resource;
+			// --- ↓ --- //
+			resource->~T();
+			free(resource);
+		}
+	};
+
+}
+
+#define MAKEUNIQUE(type, ...) std::unique_ptr<type>(new type(__VA_ARGS__))
 
 #endif // UNIQUE_PTR_HPP
