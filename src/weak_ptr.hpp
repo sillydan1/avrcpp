@@ -15,30 +15,28 @@
  * 
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-#ifndef SHARED_PTR_HPP
-#define SHARED_PTR_HPP
+#ifndef WEAK_PTR_HPP
+#define WEAK_PTR_HPP
 #include <utillities.h>
 
 namespace std {
-
+	
 	template<typename T>
-	class shared_ptr {
+	class weak_ptr {
 	public:
-		shared_ptr(T* res) : resource{res}, count{new unsigned int(1)}
-		{ }
-		shared_ptr(const shared_ptr<T>& other) : resource{other.resource}, count{other.count}
+		weak_ptr(const weak_ptr<T>& other) : resource{other.resource}, count{other.count}
 		{ release_resource(); (*count)++; }
-		~shared_ptr() {
+		~weak_ptr() {
 			release_resource();
 		}
 		
-		void move(shared_ptr<T>& other) {
+		void move(weak_ptr<T>& other) {
 			// Simply move the resource. Since we're moving, we shouldn't count up
 		}
 		
 	private:
 		T* resource;
-		unsigned int* count; // TODO: Support weak pointers
+		unsigned int* count;
 		
 		void release_resource() {
 			if(--*count <= 0) {
@@ -49,11 +47,11 @@ namespace std {
 			}
 		}
 		
-		shared_ptr() = delete;
-	};
-	
+		weak_ptr() = delete;
+	}
+
 }
 
-#define MAKESHARED(type, ...) std::shared_ptr<type>(new type(__VA_ARGS__))
+#define MAKEWEAK(type, ...) std::weak_ptr<type>(new type(__VA_ARGS__))
 
-#endif // SHARED_PTR_HPP
+#endif //WEAK_PTR_HPP
