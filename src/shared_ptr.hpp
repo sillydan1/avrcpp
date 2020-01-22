@@ -23,7 +23,11 @@
 #include <stdlib.h>
 
 namespace std {
-
+    /// The type-range of maximum amount of shares between shared_ptr
+    /// just change this to unsigned int, if it makes you feel better
+    /// - also, please don't use anything signed. That would be moronic.
+    using shcnt_t = unsigned char; 
+    
 	template<typename T, typename D = default_deleter<T>>
 	class shared_ptr {
         using T_t = std::remove_array_t<T>;
@@ -34,7 +38,8 @@ namespace std {
                 std::is_same<std::remove_array_t<T>,std::remove_array_t<R>>
         >;
 	public:
-		shared_ptr(T* res) : resource{res}, count{new unsigned int(1)}
+        shared_ptr() = delete;
+		shared_ptr(T* res) : resource{res}, count{new shcnt_t(1)}
 		{ }
 		shared_ptr(const shared_ptr<T>& other) : resource{other.resource}, count{other.count}
 		{ release_resource(); (*count)++; }
