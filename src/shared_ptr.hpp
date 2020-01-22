@@ -18,11 +18,21 @@
 #ifndef SHARED_PTR_HPP
 #define SHARED_PTR_HPP
 #include <utillities.h>
+#include "default_deleters.hpp"
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace std {
 
-	template<typename T>
+	template<typename T, typename D = default_deleter<T>>
 	class shared_ptr {
+        using T_t = std::remove_array_t<T>;
+        template<typename R>
+        using is_derived = std::conditional_t<
+                std::is_class<std::remove_array_t<R>>::value,
+                std::is_base_of<T_t,std::remove_array_t<R>>,
+                std::is_same<std::remove_array_t<T>,std::remove_array_t<R>>
+        >;
 	public:
 		shared_ptr(T* res) : resource{res}, count{new unsigned int(1)}
 		{ }
