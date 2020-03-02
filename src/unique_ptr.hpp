@@ -21,7 +21,11 @@
 #include "default_deleters.hpp"
 
 namespace std {
-
+    /// Unique pointer class. Pointer with unique ownership of
+    /// the resource. You can define custom deleters via the second
+    /// template argument.
+    /// Usage:
+    /// unique_ptr<int> my_int_pointer;
 	template<typename T, typename D = default_deleter<T>>
 	class unique_ptr {
         using Tt = std::remove_array_t<T>;
@@ -29,15 +33,16 @@ namespace std {
         using is_derived = std::conditional_t<
             std::is_class<std::remove_array_t<L>>::value,
             std::is_base_of<Tt,std::remove_array_t<L>>,
-            std::is_same<Tt,std::remove_array_t<L>>
-        >;
+            std::is_same<Tt,std::remove_array_t<L>>>;
 	public:
         unique_ptr(const unique_ptr&) = delete;
         unique_ptr() = delete;
         template<typename L>
         unique_ptr(unique_ptr<L>&& ptr)
          : resource(static_cast<Tt*>(ptr.get()))
-        { static_assert(is_derived<L>::value, "Only unique pointers of derived classes can be moved"); }
+        { static_assert(is_derived<L>::value, 
+          "Only unique pointers of derived classes can be moved"); 
+        }
         unique_ptr(Tt* ptr) : resource{ptr} {}
         ~unique_ptr() { release_resource(); }
         // No implicit copy assignment, please

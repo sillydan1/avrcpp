@@ -26,49 +26,112 @@ namespace std {
     /// The type-range of maximum amount of shares between shared_ptr
     /// just change this to unsigned int, if it makes you feel better
     /// - also, please don't use anything signed. That would be moronic.
-    using shcnt_t = unsigned char; 
+#ifndef SHARED_PTR_COUNTER_TYPE
+#define SHARED_PTR_COUNTER_TYPE unsigned char
+#endif
+    using shcnt_t = SHARED_PTR_COUNTER_TYPE; 
     
 	template<typename T, typename D = default_deleter<T>>
 	class shared_ptr {
-        using T_t = std::remove_array_t<T>;
-        template<typename R>
+        using Tt = std::remove_array_t<T>;
+        template<typename L>
         using is_derived = std::conditional_t<
-                std::is_class<std::remove_array_t<R>>::value,
-                std::is_base_of<T_t,std::remove_array_t<R>>,
-                std::is_same<std::remove_array_t<T>,std::remove_array_t<R>>
+                std::is_class<std::remove_array_t<L>>::value,
+                std::is_base_of<Tt,std::remove_array_t<L>>,
+                std::is_same<Tt,std::remove_array_t<L>>
         >;
 	public:
         shared_ptr() = delete;
-		shared_ptr(T* res) : resource{res}, count{new shcnt_t(1)}
+		shared_ptr(Tt* ptr) : resource{ptr}, count{new shcnt_t(1)}
 		{ }
-		shared_ptr(const shared_ptr<T>& other) : resource{other.resource}, count{other.count}
-		{ release_resource(); (*count)++; }
-		~shared_ptr() {
-			release_resource();
-		}
-		
-		void move(shared_ptr<T>& other) {
-			// Simply move the resource. Since we're moving, we shouldn't count up
-		}
-		
+        template<typename L>
+        shared_ptr(const shared_ptr<R>& p)
+         : resource{static_cast<Tt*>(p.get())}, count{p.count}
+		{
+            static_assert(is_derived<R>::value,
+            "Can only copy pointers of derived classes");
+            ++*count;
+        }
+        shared_ptr(const shared_ptr<T>& p)
+         : resource{p.resource}, count(p.count)
+		{ ++*count; }
+        ~shared_ptr() {
+            release_resource();
+        }
+        
+        inline Tt& operator[](const unsigned char i) const {
+            static_assert(std::is_array<T>::value,
+            "'[]' operator only work on pointers to arrays");
+        }
+        inline T* operator->() const {
+            static_assert(!std::is_array<T>::value,
+            "'->' operator doesn't work on pointers to arrays");
+            return resource;
+        }
+        inline T& operator*() const {
+            static_assert(!std::is_array<T>::value,
+            "'*' operator doesn't work on pointers to arrays");
+            return *resource;
+        }
+        inline Tt* const get() const { return resource; }
+        inline shcnt_t use_count() const { 
+            if(count == NULL) return 0; else return *count; 
+        }
+        template<typename L>
+        shared_ptr& operator=(const shared_ptr<L>& p) {
+            static_assert(is_derived<L>::value, 
+            "Can only copy pointers of derived classes!");
+            release_resource();
+            resource = static_cast<Tt*>(p.resource);
+            count = p.count;
+            ++*count;
+            return *this;
+        }
+        shared_ptr& operator=(const shared_ptr<T>& p) { // Copying sh<T> and not sh<L>
+            static_assert(is_derived<T>::value, 
+            "Can only copy pointers of derived classes!");
+            release_resource();
+            resource = static_cast<Tt*>(p.resource);
+            count = p.count;
+            ++*count;
+            return *this;
+        }
+        template<typename L>
+        shared_ptr& operator=(shared_ptr<L>&& p) {
+            static_assert(is_derived<L>::value, 
+            "Can only move pointers of derived classes!");
+            release_resource();
+            resource = static_cast<Tt*>(p.resource);
+            count = p.count;
+            ++*count;
+            return *this;
+        }
+        
 	private:
 		T* resource;
-		unsigned int* count; // TODO: Support weak pointers
+		shcnt_t* count;
 		
 		void release_resource() {
 			if(--*count <= 0) {
-				delete resource;
-				// --- ↓ --- //
-				resource->~T();
-				free(resource);
+				D::free(resource);
+                delete count;
 			}
 		}
 		
 		shared_ptr() = delete;
 	};
+
+    // Having make_shared for arrays is a C++20 feature anyway
+    template<typename T, typename... Ts>
+    inline shared_ptr<T> make_shared(Ts&&... ps) {
+        return shared_ptr<T>(new T(std::forward<Ts>(ps)...));
+    }
+
+    template <typename T, typename... Ts>
+    inline std::shared_ptr<T[]> make_shared_array(Ts&&... p) {
+        return std::shared_ptr<T[]>(new T[sizeof...(p)] {p...});
+    }
 	
 }
-
-#define MAKESHARED(type, ...) std::shared_ptr<type>(new type(__VA_ARGS__))
 
 #endif // SHARED_PTR_HPP
