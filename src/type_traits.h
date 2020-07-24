@@ -24,30 +24,54 @@ namespace std {
     struct integral_constant {
         static constexpr T value = v;
         typedef T value_type;
-        typedef integral_constant type;
+        typedef integral_constant type; // using injected-class-name
+        constexpr operator value_type() const noexcept { return value; }
+        constexpr value_type operator()() const noexcept { return value; } // Since c++14
     };
-
+    template< class... >
+    using void_t = void;
     struct true_type  : integral_constant<bool, true> { }
-
     struct false_type : integral_constant<bool, false>{ }
 
     template<bool B, typename T, typename F>
     struct conditional { typedef T type; };
-     
     template<typename T, typename F>
     struct conditional<false, T, F> { typedef F type; };
+    template<bool B, typename T, typename F>
+    using conditional_t = typename conditional<B,T,F>::type;
+
+    template<typename T > struct remove_reference      {typedef T type;};
+    template<typename T > struct remove_reference<T&>  {typedef T type;};
+    template<typename T > struct remove_reference<T&&> {typedef T type;};
 
     template<bool B, typename T = void>
     struct enable_if {};
-     
     template<typename T>
     struct enable_if<true, T> { typedef T type; };
+    template<bool B, typename T = void>
+    using enable_if_t = typename enable_if<B,T>::type;
+
+    // https://en.cppreference.com/w/cpp/types/add_reference
+    namespace detail {
+        template<typename T> struct type_identity { using type = T; };
+
+        template <typename T> auto try_add_lvalue_reference(int) -> type_identity<T&>;
+        template <typename T> auto try_add_lvalue_reference(...) -> type_identity<T>;
+
+        template<typename T> auto try_add_rvalue_reference(int) -> type_identity<T&&>;
+        template<typename T> auto try_add_rvalue_reference(...) -> type_identity<T>;
+    }
+    template<typename T> struct add_lvalue_reference : decltype(detail::try_add_lvalue_reference<T>(0)) {};
+    template<typename T> struct add_rvalue_reference : decltype(detail::try_add_rvalue_reference<T>(0)) {};
+
+    template<typename T>
+    typename std::add_rvalue_reference<T>::type declval() noexcept;
 
     template<typename T> struct remove_array { typedef T value_type; };
     template<typename T> struct remove_array<T[]> { typedef T value_type; };
     template<typename T, size_t N> struct remove_array<T[N]> { typedef T value_type; };
     
-    template <typename T> struct is_class : std::integral_constant<bool, sizeof(detail::test<T>(0))==1> {}; // && !std::is_union<T>::value
+    template <typename T> struct is_class : std::integral_constant<bool, sizeof(detail::test<T>(0))==1> {};
     // Based off of: https://en.cppreference.com/w/cpp/types/is_base_of
     namespace details {
         template <typename Base> std::true_type is_base_of_test_func(const volatile Base*);
@@ -70,5 +94,16 @@ namespace std {
                     details::pre_is_base_of2<Base, Derived>,
                     std::false_type
             > { };
+
+    // is_array, these are also based on the "possible implementation" from cppreference
+    template<typename T> struct is_array : false_type {};
+    template<typename T> struct is_array<T[]> : true_type { };
+    template<typename T, unsigned int N> struct is_array<T[N]> : true_type {};
+    // is_same, use this to check two types.
+    template<typename T, typename U> struct is_same : false_type {};
+    template<typename T> struct is_same<T, T> : true_type { };
+
+    template<class T> struct is_lvalue_reference     : std::false_type {};
+    template<class T> struct is_lvalue_reference<T&> : std::true_type {};
 }
 #endif // TYPE_TRAITS_H
