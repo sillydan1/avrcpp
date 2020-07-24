@@ -121,7 +121,7 @@ namespace std {
 		shared_ptr() = delete;
 	};
 
-    // Having make_shared for arrays is a C++20 feature anyway
+    // Having make_shared for arrays is a C++20 feature
     template<typename T, typename... Ts>
     inline shared_ptr<T> make_shared(Ts&&... ps) {
         return shared_ptr<T>(new T(std::forward<Ts>(ps)...));
