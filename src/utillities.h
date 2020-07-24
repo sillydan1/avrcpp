@@ -29,4 +29,21 @@ void* operator new[](size_t size);
 void operator delete(void * ptr);
 void operator delete[](void * ptr);
 
+/* std::move & std::forward 
+ * For your C++11+ needs
+ * */
+namespace std {
+    template<typename T> constexpr typename remove_reference<T>::type&& move(T&& arg) { 
+        return static_cast<typename remove_reference<T>::type&&>(arg); 
+    }
+    template <class T> inline T&& forward(typename std::remove_reference<T>::type& t) noexcept { 
+        return static_cast<T&&>(t); 
+    }
+    template <class T> inline T&& forward(typename std::remove_reference<T>::type&& t) noexcept {
+        static_assert(!std::is_lvalue_reference<T>::value,
+                      "Can not forward an rvalue as an lvalue.");
+        return static_cast<T&&>(t);
+    }
+}
+
 #endif // UTILLITIES_H
