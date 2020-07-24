@@ -10,7 +10,7 @@ Please take note of the GPL3 license. If you want to use this in a proffessional
 Here is a list of posts for the lazy ones:
 - [new & delete](https://blog.gtz.dk/avr/c++/2019/05/17/cpp-with-avr-gpp.html)
 - [avr memory model](https://blog.gtz.dk/avr/c++/2019/03/24/avr-memory-model-the-practical-explanation.html) (just some background, for understanding everything)
-- [smart pointers]() wip
+- [smart pointers](https://blog.gtz.dk/avr/c++/2019/03/24/avr-memory-model-the-practical-explanation.html)
 - [type traits]() wip
 - ??
 
