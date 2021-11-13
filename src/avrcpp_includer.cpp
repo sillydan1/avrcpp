@@ -21,3 +21,4 @@
 //// by an implementation file, so I include everything here.
 #include "../include/utility"
 #include "../include/memory"
+#include "../include/vector.h"
