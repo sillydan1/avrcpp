@@ -15,6 +15,8 @@
  *
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-#include "shared_ptr.hpp"
-#include "unique_ptr.hpp"
-#include "weak_ptr.hpp"
+#ifndef AVRCPP_MEMORY_H
+#define AVRCPP_MEMORY_H
+#include "unique_ptr.h"
+#include "shared_ptr.h"
+#endif

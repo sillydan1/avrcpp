@@ -17,8 +17,9 @@
  * */
 #ifndef UTILLITIES_H
 #define UTILLITIES_H
-// NOTE: This is tested with avr-g++ version 5.4.0 on Debian 10
+#include <cstddef>
 
+// NOTE: This is tested with avr-g++ version 5.4.0 on Debian 10
 /* Compiler extensions */
 extern "C" void __cxa_pure_virtual(void) __attribute__ ((__noreturn__));
 extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));
@@ -28,22 +29,5 @@ void* operator new(size_t size);
 void* operator new[](size_t size);
 void operator delete(void * ptr);
 void operator delete[](void * ptr);
-
-/* std::move & std::forward 
- * For your C++11+ needs
- * */
-namespace std {
-    template<typename T> constexpr typename remove_reference<T>::type&& move(T&& arg) { 
-        return static_cast<typename remove_reference<T>::type&&>(arg); 
-    }
-    template <class T> inline T&& forward(typename std::remove_reference<T>::type& t) noexcept { 
-        return static_cast<T&&>(t); 
-    }
-    template <class T> inline T&& forward(typename std::remove_reference<T>::type&& t) noexcept {
-        static_assert(!std::is_lvalue_reference<T>::value,
-                      "Can not forward an rvalue as an lvalue.");
-        return static_cast<T&&>(t);
-    }
-}
 
 #endif // UTILLITIES_H

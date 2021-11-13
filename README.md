@@ -1,5 +1,8 @@
 # avrcpp
-Some development utilities for avr development in C/C++ using avr-g++. This project is not supposed to be a complete STL implementation, but it should get you started on the hard parts. 
+Some development utilities for avr development in C/C++ using avr-g++. 
+This project is not supposed to be a complete STL implementation, 
+but it should get you started. Most of this is a header only, but stuff like enabling purely
+and deleted virtual functions have been done via an implementation file. 
 
 ## License
 Please take note of the GPL3 license. This means that if you distribute your project, it should be licensed with a GPL3 compatible license. If you use this for personal use, then no worries.

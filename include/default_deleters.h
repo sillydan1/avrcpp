@@ -11,10 +11,27 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
- * 
+ *
+ *
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-#include "unique_ptr.hpp"
-#include "shared_ptr.hpp"
-#include "weak_ptr.hpp"
+#ifndef DEFAULT_DELETERS_HPP
+#define DEFAULT_DELETERS_HPP
+#include <type_traits>
+
+namespace stl {
+	//// Default deleter Functor objects. 
+	//// Custom deleter support is needed for more complex types pointed to
+	//// by smart pointers.
+	template<typename T, typename SFINAE = void>
+	struct default_deleter {
+		static inline void free(T* a) { delete a; }
+	};
+
+	template<typename T>
+	struct default_deleter<T, typename stl::enable_if<stl::is_array<T>::value>::type > {
+		static inline void free(typename stl::remove_array<T>::value_type * a) { delete[] a; }
+	};
+}
+
+#endif // DEFAULT_DELETERS_HPP
