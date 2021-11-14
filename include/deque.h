@@ -15,11 +15,16 @@
  *
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-//// Dont use this in your project. This is for internal use only
-//// This file is only used for avrcpp development work.
-//// My clangd-tidy complains if the constructs are not included
-//// by an implementation file, so I include everything here.
-#include "../include/utility"
-#include "../include/memory"
-#include "../include/vector.h"
-#include "../include/deque.h"
+#ifndef AVRCPP_DEQUE_H
+#define AVRCPP_DEQUE_H
+#include "iterators.h"
+#ifndef AVRCPP_DEQUE_BUFFER_SIZE
+// Note: this is the ELEMENT AMOUNT in a deque buffer - not byte size
+#define AVRCPP_DEQUE_BUFFER_SIZE 10
+#endif
+
+namespace stl {
+
+}
+
+#endif //AVRCPP_DEQUE_H
