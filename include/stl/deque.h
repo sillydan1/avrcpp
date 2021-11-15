@@ -17,6 +17,7 @@
  * */
 #ifndef AVRCPP_DEQUE_H
 #define AVRCPP_DEQUE_H
+#include "algorithm.h"
 #include "iterators.h"
 #include "default_includes"
 #ifndef AVRCPP_DEFAULT_DEQUE_CHUNK_SIZE
@@ -54,6 +55,8 @@ namespace stl {
         void emplace_front(value_type&& v);
         void pop_front();
     private:
+        auto allocate_map(size_type desired_size) -> map_pointer;
+        void deallocate_map();
         void reallocate_map(size_type nodes_to_add, bool add_at_front);
         auto allocate_node() -> pointer;
         void push_back_auxiliary(const_reference v);
@@ -73,8 +76,8 @@ namespace stl {
     deque<T, deque_chunk_size>::deque()
      : map{nullptr}, map_size{}, start{nullptr}, finish{nullptr}
     {
-        auto* node0 = (pointer)malloc(deque_chunk_size * sizeof(value_type));
-        map = (map_pointer)malloc(1 * sizeof(pointer));
+        auto node0 = (pointer)malloc(deque_chunk_size * sizeof(value_type));
+        map = allocate_map(1);
         map[0] = node0;
         map_size = 1;
         start = iterator{map};
@@ -145,31 +148,6 @@ namespace stl {
     }
 
     template<typename T, size_t deque_chunk_size>
-    void deque<T, deque_chunk_size>::emplace_back(value_type&& v) {
-
-    }
-
-    template<typename T, size_t deque_chunk_size>
-    void deque<T, deque_chunk_size>::pop_back() {
-
-    }
-
-    template<typename T, size_t deque_chunk_size>
-    void deque<T, deque_chunk_size>::push_front(const_reference v) {
-
-    }
-
-    template<typename T, size_t deque_chunk_size>
-    void deque<T, deque_chunk_size>::emplace_front(value_type&& v) {
-
-    }
-
-    template<typename T, size_t deque_chunk_size>
-    void deque<T, deque_chunk_size>::pop_front() {
-
-    }
-
-    template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::destroy_range(deque<T, deque_chunk_size>::iterator a, deque<T, deque_chunk_size>::iterator b) {
         for(auto p = a; p != b; ++p)
             p.current->~T();
@@ -181,14 +159,14 @@ namespace stl {
             p->~T();
     }
 
-    template<typename T, size_t _deque_chunk_size>
-    auto deque<T, _deque_chunk_size>::allocate_node() -> deque::pointer {
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::allocate_node() -> deque::pointer {
 
         return nullptr;
     }
 
-    template<typename T, size_t _deque_chunk_size>
-    void deque<T, _deque_chunk_size>::push_back_auxiliary(const_reference v) {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::push_back_auxiliary(const_reference v) {
         auto v_cpy = v;
         // reserve map at back
         *(finish.node+1) = allocate_node();
@@ -196,16 +174,35 @@ namespace stl {
         finish.current = finish.first;
     }
 
-    template<typename T, size_t _deque_chunk_size>
-    void deque<T, _deque_chunk_size>::reallocate_map(deque::size_type nodes_to_add, bool add_at_front) {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::reallocate_map(deque<T, deque_chunk_size>::size_type nodes_to_add, bool add_at_front) {
         auto old_num_of_nodes = map_size;
         auto new_num_of_nodes = old_num_of_nodes + nodes_to_add;
-        map_pointer new_map;
+        map_pointer new_node_start;
         if(map_size > 2 * new_num_of_nodes) {
 
         } else {
-            size_type new_map_size = map_size + 3;
+            auto new_map_size = map_size + stl::max(map_size, nodes_to_add) + 2;
+            auto new_map = allocate_map(new_map_size);
+            new_node_start = new_map + (new_map_size - new_num_of_nodes) / 2
+                             + (add_at_front ? nodes_to_add : 0);
+            // copy
+            deallocate_map();
+            map = new_map;
+            map_size = new_map_size;
         }
+        start.set_node(new_node_start);
+        finish.set_node(new_node_start + old_num_of_nodes - 1);
+    }
+
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::allocate_map(deque<T, deque_chunk_size>::size_type desired_size) -> deque<T, deque_chunk_size>::map_pointer {
+        return (map_pointer)malloc(desired_size * sizeof(pointer));;
+    }
+
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::deallocate_map() {
+
     }
 }
 
