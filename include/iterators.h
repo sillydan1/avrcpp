@@ -17,24 +17,31 @@
  * */
 namespace stl {
 #ifdef AVRCPP_DEQUE_H
-    template<typename T>
+    template<typename T, size_t max_elems_in_chunk>
     struct _deque_iterator {
         using value_type = T;
         using pointer = value_type*;
         using map_pointer = value_type**;
         using reference = value_type&;
         using size_type = size_t;
-        using self_type = _deque_iterator<value_type>;
+        using self_type = _deque_iterator<value_type, max_elems_in_chunk>;
         using difference_type = ptrdiff_t;
+        pointer current;
+        pointer first;
+        pointer last;
+        map_pointer node;
 
+        explicit _deque_iterator(map_pointer map)
+         : current{}, first{}, last{}, node{} {
+            set_node(map);
+            current = first;
+        }
         void set_node(map_pointer new_node) {
-            auto block_size = chunk_size();
             node = new_node;
             first = *new_node;
-            last = first + block_size;
+            last = first + max_elems_in_chunk;
         }
-        // This could probably be optimized away with a constexpr
-        auto chunk_size() -> size_type {
+        auto calculate_chunk_size() -> size_type {
             return last - first;
         }
         auto operator*() const -> reference {
@@ -71,14 +78,14 @@ namespace stl {
         }
         auto operator+=(difference_type n) -> self_type& {
             auto offset = n + (current - first);
-            if (offset >= 0 && offset < difference_type(chunk_size()))
+            if (offset >= 0 && offset < max_elems_in_chunk)
                 current += n;
             else {
                 auto node_offset = offset > 0 ?
-                        offset / difference_type(chunk_size())
-                        : -((-offset - 1) / difference_type(chunk_size())) - 1;
+                                   offset / max_elems_in_chunk
+                        : -((-offset - 1) / max_elems_in_chunk) - 1;
                 set_node(node + node_offset);
-                current = first + (offset - node_offset * chunk_size());
+                current = first + (offset - node_offset * max_elems_in_chunk);
             }
             return *this;
         }
@@ -93,11 +100,24 @@ namespace stl {
             auto tmp = *this;
             return tmp -= n;
         }
-        pointer current;
-        pointer first;
-        pointer last;
-        map_pointer node;
+        auto operator==(const self_type& o) const -> bool {
+            return node == o.node && current == o.current && first == o.first && last == o.last;
+        }
+        auto operator!=(const self_type& o) const -> bool {
+            return !(this->operator==(o));
+        }
+        // TODO: <, <=, <=>, =>, > operators
     };
+
+    template<typename T, size_t max_elems_in_chunk>
+    auto operator==(const _deque_iterator<T,max_elems_in_chunk>& a, const _deque_iterator<T,max_elems_in_chunk>& b) {
+        return a.operator==(b);
+    }
+
+    template<typename T, size_t max_elems_in_chunk>
+    auto operator!=(const _deque_iterator<T,max_elems_in_chunk>& a, const _deque_iterator<T,max_elems_in_chunk>& b) {
+        return a.operator!=(b);
+    }
 #endif
 
 }

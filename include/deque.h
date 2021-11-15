@@ -18,13 +18,13 @@
 #ifndef AVRCPP_DEQUE_H
 #define AVRCPP_DEQUE_H
 #include "iterators.h"
-#ifndef AVRCPP_DEQUE_BUFFER_SIZE
+#ifndef AVRCPP_DEFAULT_DEQUE_CHUNK_SIZE
 // Note: this is the ELEMENT AMOUNT in a deque buffer - not byte size
-#define AVRCPP_DEQUE_BUFFER_SIZE 10
+#define AVRCPP_DEFAULT_DEQUE_CHUNK_SIZE 10
 #endif
 
 namespace stl {
-    template<typename T>
+    template<typename T, size_t _deque_chunk_size = AVRCPP_DEFAULT_DEQUE_CHUNK_SIZE>
     class deque {
     public:
         using value_type = T;
@@ -33,16 +33,12 @@ namespace stl {
         using pointer = value_type*;
         using const_reference = const value_type&;
         using size_type = size_t;
-        using iterator = _deque_iterator<value_type>;
-        static constexpr auto _deque_chunk_size = AVRCPP_DEQUE_BUFFER_SIZE;
+        using iterator = _deque_iterator<value_type, _deque_chunk_size>;
 
         deque();
         ~deque();
-
         [[nodiscard]] inline auto size() const -> size_type;
         [[nodiscard]] inline auto empty() const -> bool;
-        void shrink_to_fit();
-
         auto begin() -> iterator;
         auto begin() const -> iterator;
         auto end() -> iterator;
@@ -69,135 +65,130 @@ namespace stl {
         iterator finish;
     };
 
-
-    template<typename T>
-    deque<T>::deque()
-            : map{nullptr},
-              map_size{0},
-              start{nullptr},
-              finish{start}
+    template<typename T, size_t deque_chunk_size>
+    deque<T, deque_chunk_size>::deque()
+     : map{nullptr}, map_size{}, start{nullptr}, finish{nullptr}
     {
-
+        auto* node0 = (pointer)malloc(deque_chunk_size * sizeof(value_type));
+        map = (map_pointer)malloc(1 * sizeof(pointer));
+        map[0] = node0;
+        map_size = 1;
+        start = iterator{map};
+        finish = iterator{map};
     }
 
-    template<typename T>
-    deque<T>::~deque() {
+    template<typename T, size_t deque_chunk_size>
+    deque<T, deque_chunk_size>::~deque() {
         destroy_range(start, finish);
-        // TODO: deallocate map
+        free(map);
     }
 
-    template<typename T>
-    auto deque<T>::size() const -> deque<T>::size_type {
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::size() const -> deque<T, deque_chunk_size>::size_type {
         return finish - start;
     }
 
-    template<typename T>
-    auto deque<T>::empty() const -> bool {
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::empty() const -> bool {
         return finish == start;
     }
 
-    template<typename T>
-    void deque<T>::shrink_to_fit() {
-
-    }
-
-    template<typename T>
-    auto deque<T>::begin() -> deque<T>::iterator {
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::begin() -> deque<T, deque_chunk_size>::iterator {
         return start;
     }
 
-    template<typename T>
-    auto deque<T>::begin() const -> deque<T>::iterator {
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::begin() const -> deque<T, deque_chunk_size>::iterator {
         return start;
     }
 
-    template<typename T>
-    auto deque<T>::end() -> deque<T>::iterator {
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::end() -> deque<T, deque_chunk_size>::iterator {
         return finish;
     }
 
-    template<typename T>
-    auto deque<T>::end() const -> deque<T>::iterator {
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::end() const -> deque<T, deque_chunk_size>::iterator {
         return finish;
     }
 
-    template<typename T>
-    auto deque<T>::front() -> reference {
-        return *this->start;
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::front() -> reference {
+        return *start;
     }
 
-    template<typename T>
-    auto deque<T>::front() const -> const_reference {
-        return *this->start;
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::front() const -> const_reference {
+        return *start;
     }
 
-    template<typename T>
-    auto deque<T>::back() -> reference {
-        return *(end()-1);
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::back() -> reference {
+        return *(finish-1);
     }
 
-    template<typename T>
-    auto deque<T>::back() const -> const_reference {
-        return *(end()-1);
+    template<typename T, size_t deque_chunk_size>
+    auto deque<T, deque_chunk_size>::back() const -> const_reference {
+        return *(finish-1);
     }
 
-    template<typename T>
-    void deque<T>::clear() {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::clear() {
         if(empty())
             return;
         // Destroy all "middle" nodes
-        for(auto node = start.node+1; node < finish.node; ++node) {
-            destroy_range(*node, (*node) + _deque_chunk_size);
-            // TODO: deallocate node
+        if(map_size > 2) {
+            for (map_pointer node = start.node + 1; node < finish.node; ++node)
+                destroy_range(*node, (*node) + deque_chunk_size);
         }
         // Destroy "end" nodes
         if(start.node != finish.node) {
             destroy_range(start.current, start.last);
             destroy_range(finish.first, finish.current);
-            // TODO: deallocate finish.node (don't deallocate start.node)
         } else
             destroy_range(start.current, finish.current);
         finish = start;
     }
 
-    template<typename T>
-    void deque<T>::push_back(const_reference v) {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::push_back(const_reference v) {
 
     }
 
-    template<typename T>
-    void deque<T>::emplace_back(value_type&& v) {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::emplace_back(value_type&& v) {
 
     }
 
-    template<typename T>
-    void deque<T>::pop_back() {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::pop_back() {
 
     }
 
-    template<typename T>
-    void deque<T>::push_front(const_reference v) {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::push_front(const_reference v) {
 
     }
 
-    template<typename T>
-    void deque<T>::emplace_front(value_type&& v) {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::emplace_front(value_type&& v) {
 
     }
 
-    template<typename T>
-    void deque<T>::pop_front() {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::pop_front() {
 
     }
 
-    template<typename T>
-    void deque<T>::destroy_range(deque<T>::iterator a, deque<T>::iterator b) {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::destroy_range(deque<T, deque_chunk_size>::iterator a, deque<T, deque_chunk_size>::iterator b) {
         for(auto p = a; p != b; ++p)
             p.current->~T();
     }
 
-    template<typename T>
-    void deque<T>::destroy_range(deque<T>::pointer a, deque<T>::pointer b) {
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::destroy_range(deque<T, deque_chunk_size>::pointer a, deque<T, deque_chunk_size>::pointer b) {
         for(auto p = a; p != b; ++p)
             p->~T();
     }
