@@ -17,6 +17,7 @@
  * */
 #ifndef AVRCPP_VECTOR_H
 #define AVRCPP_VECTOR_H
+#include "default_includes"
 
 namespace stl {
     template<typename T>

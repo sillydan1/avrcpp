@@ -109,6 +109,8 @@ namespace stl {
             return !(this->operator==(o));
         }
         // TODO: <, <=, <=>, =>, > operators
+        // TODO: [] operator
+        // TODO: operator-(const self_type&)
     };
 
     template<typename T, size_t max_elems_in_chunk>

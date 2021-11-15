@@ -17,26 +17,5 @@
  * */
 #ifndef AVRCPP_TYPE_TRAITS
 #define AVRCPP_TYPE_TRAITS
-namespace stl {
-    template<typename T>
-    bool disjunction(T compareVal, T arg0) {
-        return compareVal == arg0;
-    }
-    template<typename T, typename... Args>
-    bool disjunction(T compareVal, T arg0, Args... args) {
-        if(compareVal == arg0)
-            return true;
-        return disjunction(compareVal, args...);
-    }
-    template<typename T>
-    bool conjunction(T compareVal, T arg0) {
-        return compareVal == arg0;
-    }
-    template<typename T, typename... Args>
-    bool conjunction(T compareVal, T arg0, Args... args) {
-        if(compareVal != arg0)
-            return false;
-        return conjunction(compareVal, args...);
-    }
-}
+#include "stl/type_traits.h"
 #endif

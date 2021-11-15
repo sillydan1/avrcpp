@@ -18,9 +18,9 @@
 #ifndef TYPE_TRAITS_H
 #define TYPE_TRAITS_H
 #include "default_includes"
-namespace stl {
 
-// Integral constant, based on the "possible implementation" from cppreference
+namespace stl {
+    // Integral constant, based on the "possible implementation" from cppreference
     template<typename T, T v>
     struct integral_constant {
         static constexpr T value = v;
@@ -138,6 +138,27 @@ namespace stl {
 
     template<class T> struct is_lvalue_reference     : stl::false_type {};
     template<class T> struct is_lvalue_reference<T&> : stl::true_type {};
+
+    template<typename T>
+    bool disjunction(T compareVal, T arg0) {
+        return compareVal == arg0;
+    }
+    template<typename T, typename... Args>
+    bool disjunction(T compareVal, T arg0, Args... args) {
+        if(compareVal == arg0)
+            return true;
+        return disjunction(compareVal, args...);
+    }
+    template<typename T>
+    bool conjunction(T compareVal, T arg0) {
+        return compareVal == arg0;
+    }
+    template<typename T, typename... Args>
+    bool conjunction(T compareVal, T arg0, Args... args) {
+        if(compareVal != arg0)
+            return false;
+        return conjunction(compareVal, args...);
+    }
 }
 
 #endif // TYPE_TRAITS_H

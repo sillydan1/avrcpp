@@ -15,12 +15,23 @@
  *
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-//// Dont use this in your project. This is for internal use only
-//// This file is only used for avrcpp development work.
-//// My clangd-tidy complains if the constructs are not included
-//// by an implementation file, so I include everything here.
-#include "utility"
-#include "memory"
-#include "vector"
-#include "deque"
-#include "algorithm"
+#ifndef DEFAULT_DELETERS_HPP
+#define DEFAULT_DELETERS_HPP
+#include "type_traits.h"
+
+namespace stl {
+	//// Default deleter Functor objects. 
+	//// Custom deleter support is needed for more complex types pointed to
+	//// by smart pointers.
+	template<typename T, typename SFINAE = void>
+	struct default_deleter {
+		static inline void free(T* a) { delete a; }
+	};
+
+	template<typename T>
+	struct default_deleter<T, typename stl::enable_if<stl::is_array<T>::value>::type > {
+		static inline void free(typename stl::remove_array<T>::value_type * a) { delete[] a; }
+	};
+}
+
+#endif // DEFAULT_DELETERS_HPP

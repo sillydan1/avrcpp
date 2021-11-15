@@ -15,12 +15,19 @@
  *
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-//// Dont use this in your project. This is for internal use only
-//// This file is only used for avrcpp development work.
-//// My clangd-tidy complains if the constructs are not included
-//// by an implementation file, so I include everything here.
-#include "utility"
-#include "memory"
-#include "vector"
-#include "deque"
-#include "algorithm"
+#ifndef AVRCPP_ALGORITHM_H
+#define AVRCPP_ALGORITHM_H
+
+namespace stl {
+    template<class T>
+    const T& max(const T& a, const T& b) {
+        return (a < b) ? b : a;
+    }
+    template<class T, class Compare>
+    const T& max(const T& a, const T& b, Compare comp) {
+        return (comp(a, b)) ? b : a;
+    }
+    // TODO: stl::max for initializer_lists
+}
+
+#endif //AVRCPP_ALGORITHM_H

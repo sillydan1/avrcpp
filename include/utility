@@ -15,9 +15,9 @@
  *
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-#ifndef AVRCPP_UTILITY_H
-#define AVRCPP_UTILITY_H
-#include "type_traits.h"
+#ifndef AVRCPP_UTILITY
+#define AVRCPP_UTILITY
+#include "stl/type_traits.h"
 
 /* stl::move & stl::forward
  * For your C++11+ needs
