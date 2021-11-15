@@ -157,7 +157,7 @@ namespace stl {
     void vector<T>::emplace_back(T&& v) {
         if (count >= max_count)
             reserve(max_count << 1u);
-        data[count++] = std::move(v);
+        data[count++] = stl::move(v);
     }
 
     template<class T>

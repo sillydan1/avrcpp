@@ -15,6 +15,8 @@
  *
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
+#include "default_includes"
+
 namespace stl {
 #ifdef AVRCPP_DEQUE_H
     template<typename T, size_t max_elems_in_chunk>

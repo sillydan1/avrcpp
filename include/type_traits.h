@@ -17,8 +17,7 @@
  * */
 #ifndef TYPE_TRAITS_H
 #define TYPE_TRAITS_H
-#include <cstddef>
-
+#include "default_includes"
 namespace stl {
 
 // Integral constant, based on the "possible implementation" from cppreference

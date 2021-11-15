@@ -18,7 +18,7 @@
 #ifndef SHARED_PTR_HPP
 #define SHARED_PTR_HPP
 #include "default_deleters.h"
-#include <stdlib.h>
+#include "default_includes"
 
 namespace stl {
     template <typename T, typename D = default_deleter<T>>

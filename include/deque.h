@@ -18,6 +18,7 @@
 #ifndef AVRCPP_DEQUE_H
 #define AVRCPP_DEQUE_H
 #include "iterators.h"
+#include "default_includes"
 #ifndef AVRCPP_DEFAULT_DEQUE_CHUNK_SIZE
 // Note: this is the ELEMENT AMOUNT in a deque buffer - not byte size
 #define AVRCPP_DEFAULT_DEQUE_CHUNK_SIZE 10
@@ -37,18 +38,15 @@ namespace stl {
 
         deque();
         ~deque();
-        [[nodiscard]] inline auto size() const -> size_type;
-        [[nodiscard]] inline auto empty() const -> bool;
-        auto begin() -> iterator;
+        inline auto size() const -> size_type;
+        inline auto empty() const -> bool;
         auto begin() const -> iterator;
-        auto end() -> iterator;
         auto end() const -> iterator;
-        auto front() -> reference;
         auto front() const -> const_reference;
-        auto back() -> reference;
         auto back() const -> const_reference;
 
         void clear();
+        void shrink_to_fit();
         void push_back(const_reference v);
         void emplace_back(value_type&& v);
         void pop_back();
@@ -94,18 +92,8 @@ namespace stl {
     }
 
     template<typename T, size_t deque_chunk_size>
-    auto deque<T, deque_chunk_size>::begin() -> deque<T, deque_chunk_size>::iterator {
-        return start;
-    }
-
-    template<typename T, size_t deque_chunk_size>
     auto deque<T, deque_chunk_size>::begin() const -> deque<T, deque_chunk_size>::iterator {
         return start;
-    }
-
-    template<typename T, size_t deque_chunk_size>
-    auto deque<T, deque_chunk_size>::end() -> deque<T, deque_chunk_size>::iterator {
-        return finish;
     }
 
     template<typename T, size_t deque_chunk_size>
@@ -114,18 +102,8 @@ namespace stl {
     }
 
     template<typename T, size_t deque_chunk_size>
-    auto deque<T, deque_chunk_size>::front() -> reference {
-        return *start;
-    }
-
-    template<typename T, size_t deque_chunk_size>
     auto deque<T, deque_chunk_size>::front() const -> const_reference {
         return *start;
-    }
-
-    template<typename T, size_t deque_chunk_size>
-    auto deque<T, deque_chunk_size>::back() -> reference {
-        return *(finish-1);
     }
 
     template<typename T, size_t deque_chunk_size>
