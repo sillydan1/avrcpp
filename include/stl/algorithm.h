@@ -27,6 +27,14 @@ namespace stl {
     const T& max(const T& a, const T& b, Compare comp) {
         return (comp(a, b)) ? b : a;
     }
+    template<class T>
+    const T& min(const T& a, const T& b) {
+        return (a < b) ? a : b;
+    }
+    template<class T, class Compare>
+    const T& min(const T& a, const T& b, Compare comp) {
+        return (comp(a, b)) ? a : b;
+    }
     // TODO: stl::max for initializer_lists
 }
 
