@@ -96,7 +96,7 @@ namespace stl {
             return tmp += n;
         }
         auto operator-=(difference_type n) -> self_type& {
-            return *this -= -n;
+            return *this += -n;
         }
         auto operator-(difference_type n) const -> self_type& {
             auto tmp = *this;
