@@ -248,4 +248,4 @@ namespace stl {
     }
 }
 
-#endif //AVRCPP_DEQUE_H
+#endif

@@ -106,7 +106,28 @@ TEST(deque, givenSomeValuesAndLimitedMapSize_whenForeach_thenIterateProperly) {
         EXPECT_EQ(i++, el);
 }
 
-// TODO: Test for memory leakage (i.e. test the deque dtor)
+struct test_struct {
+    static int dtor_counter;
+    static int ctor_counter;
+    ~test_struct() {
+        dtor_counter++;
+    }
+    test_struct() {
+        ctor_counter++;
+    }
+};
+
+TEST(deque, givenClassWithDtor_whenClear_thenCallDtor) {
+    auto sut = stl::deque<test_struct>{};
+    sut.push_back(test_struct{});
+    sut.push_back(test_struct{});
+    sut.push_back(test_struct{});
+    ASSERT_EQ(3, test_struct::ctor_counter);
+    ASSERT_EQ(0, test_struct::dtor_counter);
+    sut.clear();
+    ASSERT_EQ(3, test_struct::ctor_counter);
+    ASSERT_EQ(3, test_struct::dtor_counter);
+}
 
 #pragma clang diagnostic pop
 #endif
