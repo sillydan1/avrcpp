@@ -111,20 +111,14 @@ TEST(deque, givenClassWithDtor_whenClear_thenCallDtor) {
     static int ctor_counter = 0;
     static int cpyctor_counter = 0;
     struct test_struct {
-        ~test_struct() {
-            dtor_counter++;
-        }
-        test_struct(const test_struct& o) {
-            cpyctor_counter++;
-        }
-        test_struct() {
-            ctor_counter++;
-        }
+        ~test_struct() { dtor_counter++; }
+        test_struct(const test_struct& o) { cpyctor_counter++; }
+        explicit test_struct() { ctor_counter++; }
     };
     auto sut = stl::deque<test_struct>{};
-    sut.push_back({});
-    sut.push_back({});
-    sut.push_back({});
+    sut.push_back(test_struct{});
+    sut.push_back(test_struct{});
+    sut.push_back(test_struct{});
     ASSERT_EQ(3, ctor_counter);
     ASSERT_EQ(3, cpyctor_counter);
     ASSERT_EQ(3, dtor_counter); // push_back copies the stack element - then stack kills the original
@@ -142,16 +136,9 @@ TEST(deque, givenClass_whenEmplaceBack_thenNoCallToDtor) {
     static int ctor_counter = 0;
     static int cpyctor_counter = 0;
     struct test_struct {
-        int v;
-        ~test_struct() {
-            dtor_counter++;
-        }
-        test_struct(const test_struct& o) {
-            cpyctor_counter++;
-        }
-        test_struct(int v) : v{v} {
-            ctor_counter++;
-        }
+        ~test_struct() { dtor_counter++; }
+        test_struct(const test_struct& o) { cpyctor_counter++; }
+        explicit test_struct(int v) { ctor_counter++; }
     };
     auto sut = stl::deque<test_struct>{};
     sut.emplace_back(1);
