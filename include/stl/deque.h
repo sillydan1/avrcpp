@@ -145,7 +145,7 @@ namespace stl {
 
         if(map_size > 2) { // Destroy all "middle" nodes
             for(auto i = 1; i < map_size-1; i++)
-                destroy_range(*map[i], (*map[i]) + deque_chunk_size);
+                destroy_range((pointer)map[i], (pointer)(map[i] + deque_chunk_size));
         }
 
         if(start.node != finish.node) { // Destroy "end" nodes
@@ -181,7 +181,7 @@ namespace stl {
     }
 
     template<typename T, size_t deque_chunk_size>
-    void deque<T, deque_chunk_size>::destroy_range(deque<T, deque_chunk_size>::pointer a, deque<T, deque_chunk_size>::pointer b) {
+    void deque<T, deque_chunk_size>::destroy_range(pointer a, pointer b) {
         for(auto p = a; p != b; ++p)
             p->~T();
     }

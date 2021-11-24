@@ -106,27 +106,35 @@ TEST(deque, givenSomeValuesAndLimitedMapSize_whenForeach_thenIterateProperly) {
         EXPECT_EQ(i++, el);
 }
 
-struct test_struct {
-    static int dtor_counter;
-    static int ctor_counter;
-    ~test_struct() {
-        dtor_counter++;
-    }
-    test_struct() {
-        ctor_counter++;
-    }
-};
-
 TEST(deque, givenClassWithDtor_whenClear_thenCallDtor) {
+    static int dtor_counter = 0;
+    static int ctor_counter = 0;
+    static int cpyctor_counter = 0;
+    struct test_struct {
+        ~test_struct() {
+            dtor_counter++;
+        }
+        test_struct(const test_struct& o) {
+            cpyctor_counter++;
+        }
+        test_struct() {
+            ctor_counter++;
+        }
+    };
     auto sut = stl::deque<test_struct>{};
     sut.push_back(test_struct{});
     sut.push_back(test_struct{});
     sut.push_back(test_struct{});
-    ASSERT_EQ(3, test_struct::ctor_counter);
-    ASSERT_EQ(0, test_struct::dtor_counter);
+    ASSERT_EQ(3, ctor_counter);
+    ASSERT_EQ(3, cpyctor_counter);
+    ASSERT_EQ(3, dtor_counter); // push_back copies the stack element - then stack kills the original
     sut.clear();
-    ASSERT_EQ(3, test_struct::ctor_counter);
-    ASSERT_EQ(3, test_struct::dtor_counter);
+    ASSERT_EQ(3, ctor_counter);
+    ASSERT_EQ(3, cpyctor_counter);
+    ASSERT_EQ(6, dtor_counter);
+    ASSERT_TRUE(sut.empty());
+    ASSERT_EQ(0, sut.size());
+    ASSERT_EQ(sut.begin(), sut.end());
 }
 
 #pragma clang diagnostic pop
