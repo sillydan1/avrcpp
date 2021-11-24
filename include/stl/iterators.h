@@ -92,14 +92,14 @@ namespace stl {
             }
             return *this;
         }
-        auto operator+(difference_type n) const -> self_type& {
+        auto operator+(difference_type n) const -> self_type {
             auto tmp = *this;
             return tmp += n;
         }
-        auto operator-=(difference_type n) -> self_type& {
+        auto operator-=(difference_type n) -> self_type {
             return *this += -n;
         }
-        auto operator-(difference_type n) const -> self_type& {
+        auto operator-(difference_type n) const -> self_type {
             auto tmp = *this;
             return tmp -= n;
         }
