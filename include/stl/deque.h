@@ -156,10 +156,10 @@ namespace stl {
 
     template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::push_back(const_reference v) {
-        if(finish.current != finish.last - 1) {
-            new(finish.current)value_type(v);
+        new(finish.current)value_type(v);
+        if(finish.current != finish.last - 1)
             ++finish;
-        } else
+        else
             push_back_auxiliary(v);
     }
 

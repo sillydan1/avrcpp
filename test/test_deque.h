@@ -23,14 +23,14 @@
 #include <gtest/gtest.h>
 #include "../include/deque"
 
-TEST(deque, givenBlankStart_whenConstruct_thenEmptyDeque) {
+TEST(deque, givenBlank_whenConstruct_thenEmptyDeque) {
     auto sut = stl::deque<int>{};
     ASSERT_EQ(0, sut.size());
     ASSERT_TRUE(sut.empty());
     ASSERT_EQ(sut.begin(), sut.end());
 }
 
-TEST(deque, givenBlankStart_whenPushBack_thenElementIsPushedBack) {
+TEST(deque, givenBlank_whenPushBack_thenElementIsPushedBack) {
     auto sut = stl::deque<int>{};
     sut.push_back(3);
     ASSERT_NE(sut.begin(), sut.end());
@@ -38,6 +38,58 @@ TEST(deque, givenBlankStart_whenPushBack_thenElementIsPushedBack) {
     ASSERT_EQ(3, sut.back());
     ASSERT_EQ(3, sut.front());
 }
+
+TEST(deque, givenLimitedMapSize_whenPushBack_thenMapIcreases) {
+    auto sut = stl::deque<int, 2>{};
+    sut.push_back(1);
+    sut.push_back(2);
+    sut.push_back(3); // Add another node
+    ASSERT_EQ(3, sut.size());
+    ASSERT_EQ(3, sut.begin()[2]);
+}
+
+TEST(deque, givenSomeValues_whenForeach_thenIterateProperly) {
+    auto sut = stl::deque<int>{};
+    sut.push_back(1);
+    sut.push_back(2);
+    sut.push_back(3);
+    sut.push_back(4);
+    sut.push_back(5);
+    int i = 1;
+    for(auto& el : sut)
+        EXPECT_EQ(i++, el);
+}
+
+TEST(deque, givenSomeValues_whenForeachTwice_thenIterateProperly) {
+    auto sut = stl::deque<int>{};
+    sut.push_back(1);
+    sut.push_back(2);
+    sut.push_back(3);
+    sut.push_back(4);
+    sut.push_back(5);
+    int i = 1;
+    for(auto& el : sut)
+        EXPECT_EQ(i++, el);
+    i = 1;
+    for(auto& el : sut) // foreach should not change the begin() and end() iterators.
+        EXPECT_EQ(i++, el);
+}
+
+TEST(deque, givenSomeValuesAndLimitedMapSize_whenForeach_thenIterateProperly) {
+    auto sut = stl::deque<int, 3>{}; // Note the limited size
+    sut.push_back(1);
+    sut.push_back(2);
+    sut.push_back(3);
+    sut.push_back(4);
+    sut.push_back(5);
+    int i = 1;
+    for(auto& el : sut)
+        std::cout << el << ", ";
+    for(auto& el : sut)
+        EXPECT_EQ(i++, el);
+}
+
+// TODO: Test for memory leakage (i.e. test the deque dtor)
 
 #pragma clang diagnostic pop
 #endif
