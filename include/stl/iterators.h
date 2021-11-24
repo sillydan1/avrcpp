@@ -35,7 +35,8 @@ namespace stl {
 
         explicit _deque_iterator(map_pointer map)
          : current{}, first{}, last{}, node{} {
-            set_node(map);
+            if(map)
+                set_node(map);
             current = first;
         }
         void set_node(map_pointer new_node) {
@@ -108,9 +109,14 @@ namespace stl {
         auto operator!=(const self_type& o) const -> bool {
             return !(this->operator==(o));
         }
+        auto operator[](difference_type n) const -> reference {
+            return *(this->operator+(n));
+        }
+        auto operator-(const self_type& o) const -> difference_type {
+            return max_elems_in_chunk * (node - o.node - 1) +
+                   (current - first) + (o.last - o.current);
+        }
         // TODO: <, <=, <=>, =>, > operators
-        // TODO: [] operator
-        // TODO: operator-(const self_type&)
     };
 
     template<typename T, size_t max_elems_in_chunk>
