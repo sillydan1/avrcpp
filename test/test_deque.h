@@ -156,5 +156,52 @@ TEST(deque, givenClass_whenEmplaceBack_thenNoCallToDtor) {
     ASSERT_EQ(sut.begin(), sut.end());
 }
 
+TEST(deque, givenClassAndSmallBuffer_whenEmplaceBack_thenNoCallToDtor) {
+    static int dtor_counter = 0;
+    static int ctor_counter = 0;
+    static int cpyctor_counter = 0;
+    struct test_struct {
+        ~test_struct() { dtor_counter++; }
+        test_struct(const test_struct& o) { cpyctor_counter++; }
+        explicit test_struct(int v) { ctor_counter++; }
+    };
+    auto sut = stl::deque<test_struct, 2>{};
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+    EXPECT_EQ(2, ctor_counter);
+    sut.emplace_back(3); // Triggers a resize
+    EXPECT_EQ(0, cpyctor_counter);
+    EXPECT_EQ(0, dtor_counter);
+    EXPECT_EQ(3, ctor_counter);
+}
+
+TEST(deque, givenClassAndSomeElementsOnBack_whenEmplaceFront_thenNoCopiesHappen) {
+    static int dtor_counter = 0;
+    static int ctor_counter = 0;
+    static int cpyctor_counter = 0;
+    struct test_struct {
+        int v;
+        ~test_struct() { dtor_counter++; }
+        test_struct(const test_struct& o) { cpyctor_counter++; }
+        explicit test_struct(int v) : v{v} { ctor_counter++; }
+    };
+    auto sut = stl::deque<test_struct>{};
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+    sut.emplace_back(3);
+    EXPECT_EQ(3, ctor_counter);
+    EXPECT_EQ(0, cpyctor_counter);
+    EXPECT_EQ(0, dtor_counter);
+    sut.emplace_front(4); // Triggers a front-extension
+    EXPECT_EQ(0, cpyctor_counter); // deques dont need to do copies because of their constant-sized array structure
+    EXPECT_EQ(4, ctor_counter);
+    EXPECT_EQ(0, dtor_counter);
+    sut.emplace_front(5);
+    sut.emplace_front(6);
+    EXPECT_EQ(0, cpyctor_counter);
+    EXPECT_EQ(6, ctor_counter);
+    EXPECT_EQ(0, dtor_counter);
+}
+
 #pragma clang diagnostic pop
 #endif
