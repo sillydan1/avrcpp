@@ -4,8 +4,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 11) # 20 is a cmake 3.21+ feature
 message("${CMAKE_PROJECT_NAME} version ${CMAKE_PROJECT_VERSION}")
 
-include_directories(.)
-
 add_library(avrcpp
         src/utillities.cpp
 )
