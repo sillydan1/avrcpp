@@ -66,6 +66,7 @@ namespace stl {
         void push_back_auxiliary(const_reference v);
         void push_front_auxiliary(const_reference v);
         void destroy_range(iterator a, iterator b);
+        void destroy_range(pointer a, pointer b);
 
         map_pointer map;
         size_type map_size;
@@ -177,6 +178,12 @@ namespace stl {
     void deque<T, deque_chunk_size>::destroy_range(iterator a, iterator b) {
         for(auto p = a; p != b; ++p)
             p.current->~T();
+    }
+
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::destroy_range(deque<T, deque_chunk_size>::pointer a, deque<T, deque_chunk_size>::pointer b) {
+        for(auto p = a; p != b; ++p)
+            p->~T();
     }
 
     template<typename T, size_t deque_chunk_size>
