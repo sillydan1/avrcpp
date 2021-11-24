@@ -142,14 +142,13 @@ TEST(deque, givenClass_whenEmplaceBack_thenNoCallToDtor) {
     static int ctor_counter = 0;
     static int cpyctor_counter = 0;
     struct test_struct {
-        int v;
         ~test_struct() {
             dtor_counter++;
         }
         test_struct(const test_struct& o) {
             cpyctor_counter++;
         }
-        test_struct(int v) : v{v} {
+        explicit test_struct(int v) {
             ctor_counter++;
         }
     };
