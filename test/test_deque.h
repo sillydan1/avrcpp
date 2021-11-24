@@ -70,21 +70,20 @@ TEST(deque, givenSomeValues_whenForeachTwice_thenIterateProperly) {
     int i = 1;
     for(auto& el : sut)
         EXPECT_EQ(i++, el);
-    i = 1;
+    int j = 1;
     for(auto& el : sut) // foreach should not change the begin() and end() iterators.
-        EXPECT_EQ(i++, el);
+        EXPECT_EQ(j++, el);
 }
 
 TEST(deque, givenSomeValuesAndLimitedMapSize_whenForeach_thenIterateProperly) {
-    auto sut = stl::deque<int, 3>{}; // Note the limited size
+    auto sut = stl::deque<int, 2>{}; // Note the limited size
     sut.push_back(1);
     sut.push_back(2);
     sut.push_back(3);
     sut.push_back(4);
     sut.push_back(5);
+    sut.push_back(6);
     int i = 1;
-    for(auto& el : sut)
-        std::cout << el << ", ";
     for(auto& el : sut)
         EXPECT_EQ(i++, el);
 }
