@@ -39,6 +39,15 @@ TEST(deque, givenBlank_whenPushBack_thenElementIsPushedBack) {
     ASSERT_EQ(3, sut.front());
 }
 
+TEST(deque, givenBlank_whenPushFront_thenElementIsPushedFront) {
+    auto sut = stl::deque<int>{};
+    sut.push_front(3);
+    ASSERT_NE(sut.begin(), sut.end());
+    ASSERT_EQ(1, sut.size());
+    ASSERT_EQ(3, sut.back());
+    ASSERT_EQ(3, sut.front());
+}
+
 TEST(deque, givenLimitedMapSize_whenPushBack_thenMapIcreases) {
     auto sut = stl::deque<int, 2>{};
     sut.push_back(1);
@@ -46,6 +55,15 @@ TEST(deque, givenLimitedMapSize_whenPushBack_thenMapIcreases) {
     sut.push_back(3); // Add another node
     ASSERT_EQ(3, sut.size());
     ASSERT_EQ(3, sut.begin()[2]);
+}
+
+TEST(deque, givenLimitedMapSize_whenPushFront_thenMapIcreases) {
+    auto sut = stl::deque<int, 2>{};
+    sut.push_front(1);
+    sut.push_front(2);
+    sut.push_front(3); // Add another node
+    ASSERT_EQ(3, sut.size());
+    ASSERT_EQ(3, sut.begin()[0]);
 }
 
 TEST(deque, givenSomeValues_whenForeach_thenIterateProperly) {
@@ -62,11 +80,11 @@ TEST(deque, givenSomeValues_whenForeach_thenIterateProperly) {
 
 TEST(deque, givenSomeValues_whenForeachTwice_thenIterateProperly) {
     auto sut = stl::deque<int>{};
-    sut.push_back(1);
-    sut.push_back(2);
-    sut.push_back(3);
-    sut.push_back(4);
-    sut.push_back(5);
+    sut.push_front(5); // Note the push_front usage here
+    sut.push_front(4);
+    sut.push_front(3);
+    sut.push_front(2);
+    sut.push_front(1);
     int i = 1;
     for(auto& el : sut)
         EXPECT_EQ(i++, el);
