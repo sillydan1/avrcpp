@@ -122,9 +122,9 @@ TEST(deque, givenClassWithDtor_whenClear_thenCallDtor) {
         }
     };
     auto sut = stl::deque<test_struct>{};
-    sut.push_back(test_struct{});
-    sut.push_back(test_struct{});
-    sut.push_back(test_struct{});
+    sut.push_back({});
+    sut.push_back({});
+    sut.push_back({});
     ASSERT_EQ(3, ctor_counter);
     ASSERT_EQ(3, cpyctor_counter);
     ASSERT_EQ(3, dtor_counter); // push_back copies the stack element - then stack kills the original
@@ -132,6 +132,38 @@ TEST(deque, givenClassWithDtor_whenClear_thenCallDtor) {
     ASSERT_EQ(3, ctor_counter);
     ASSERT_EQ(3, cpyctor_counter);
     ASSERT_EQ(6, dtor_counter);
+    ASSERT_TRUE(sut.empty());
+    ASSERT_EQ(0, sut.size());
+    ASSERT_EQ(sut.begin(), sut.end());
+}
+
+TEST(deque, givenClass_whenEmplaceBack_thenNoCallToDtor) {
+    static int dtor_counter = 0;
+    static int ctor_counter = 0;
+    static int cpyctor_counter = 0;
+    struct test_struct {
+        int v;
+        ~test_struct() {
+            dtor_counter++;
+        }
+        test_struct(const test_struct& o) {
+            cpyctor_counter++;
+        }
+        test_struct(int v) : v{v} {
+            ctor_counter++;
+        }
+    };
+    auto sut = stl::deque<test_struct>{};
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+    sut.emplace_back(3);
+    ASSERT_EQ(3, ctor_counter);
+    ASSERT_EQ(0, cpyctor_counter);
+    ASSERT_EQ(0, dtor_counter);
+    sut.clear();
+    ASSERT_EQ(3, ctor_counter);
+    ASSERT_EQ(0, cpyctor_counter);
+    ASSERT_EQ(3, dtor_counter);
     ASSERT_TRUE(sut.empty());
     ASSERT_EQ(0, sut.size());
     ASSERT_EQ(sut.begin(), sut.end());
