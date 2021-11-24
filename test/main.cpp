@@ -15,30 +15,10 @@
  * 
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-/*
- * Implementation file for avr-g++ extensions
- * */
-#include "utillities.h"
-#include <stdlib.h>
+#include <gtest/gtest.h>
+#include "test_deque.h"
 
-// virtuality extensions
-void __cxa_pure_virtual(void) {
-	abort();
-}
-void __cxa_deleted_virtual(void) {
-	abort();
-}
-
-// new/delete allocators
-void* operator new(size_t objsize) {
-	return malloc(objsize);
-}
-void* operator new[](size_t objsize) {
-	return malloc(objsize);
-}
-void operator delete(void* obj) {
-	free(obj);
-}
-void operator delete[](void* obj) {
-	free(obj);
+int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

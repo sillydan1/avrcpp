@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.0)
+find_package(GTest)
+if(${GTEST_FOUND})
+    enable_testing()
+    include_directories(${GTEST_INCLUDE_DIRS})
+    add_executable(run_all_unittests main.cpp)
+    target_link_libraries(run_all_unittests ${GTEST_LIBRARIES})
+endif()

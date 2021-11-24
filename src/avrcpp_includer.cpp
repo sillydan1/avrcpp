@@ -19,8 +19,8 @@
 //// This file is only used for avrcpp development work.
 //// My clangd-tidy complains if the constructs are not included
 //// by an implementation file, so I include everything here.
-#include "utility"
-#include "memory"
-#include "vector"
-#include "deque"
-#include "algorithm"
+#include "../include/utility"
+#include "../include/memory"
+#include "../include/vector"
+#include "../include/deque"
+#include "../include/algorithm"

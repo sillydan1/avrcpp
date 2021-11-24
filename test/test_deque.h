@@ -15,30 +15,13 @@
  * 
  * original author: sillydan1 <https://github.com/sillydan1>
  * */
-/*
- * Implementation file for avr-g++ extensions
- * */
-#include "utillities.h"
-#include <stdlib.h>
+#ifndef AVRCPP_TEST_DEQUE_H
+#define AVRCPP_TEST_DEQUE_H
+#include <gtest/gtest.h>
+#include "./include/deque"
 
-// virtuality extensions
-void __cxa_pure_virtual(void) {
-	abort();
-}
-void __cxa_deleted_virtual(void) {
-	abort();
+TEST(deque, given_when_then) {
+    ASSERT_EQ(1,1);
 }
 
-// new/delete allocators
-void* operator new(size_t objsize) {
-	return malloc(objsize);
-}
-void* operator new[](size_t objsize) {
-	return malloc(objsize);
-}
-void operator delete(void* obj) {
-	free(obj);
-}
-void operator delete[](void* obj) {
-	free(obj);
-}
+#endif //AVRCPP_TEST_DEQUE_H
