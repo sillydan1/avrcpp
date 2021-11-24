@@ -17,11 +17,27 @@
  * */
 #ifndef AVRCPP_TEST_DEQUE_H
 #define AVRCPP_TEST_DEQUE_H
+// Suppress clangd-tidy complains about static storage in gtest
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-err58-cpp"
 #include <gtest/gtest.h>
 #include "./include/deque"
 
-TEST(deque, given_when_then) {
-    ASSERT_EQ(1,1);
+TEST(deque, givenBlankStart_whenConstruct_thenEmptyDeque) {
+    auto sut = stl::deque<int>{};
+    ASSERT_EQ(0, sut.size());
+    ASSERT_TRUE(sut.empty());
+    ASSERT_EQ(sut.begin(), sut.end());
 }
 
-#endif //AVRCPP_TEST_DEQUE_H
+TEST(deque, givenBlankStart_whenPushBack_thenElementIsPushedBack) {
+    auto sut = stl::deque<int>{};
+    sut.push_back(3);
+    ASSERT_NE(sut.begin(), sut.end());
+    ASSERT_EQ(1, sut.size());
+    ASSERT_EQ(3, sut.back());
+    ASSERT_EQ(3, sut.front());
+}
+
+#pragma clang diagnostic pop
+#endif
