@@ -184,6 +184,8 @@ namespace stl {
 
     template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::pop_back() {
+        if(empty())
+            return;
         finish.current->~T();
         --finish;
     }
@@ -209,6 +211,8 @@ namespace stl {
 
     template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::pop_front() {
+        if(empty())
+            return;
         start.current->~T();
         ++start;
     }
