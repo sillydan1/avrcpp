@@ -17,11 +17,11 @@
  * */
 #ifndef AVRCPP_TEST_DEQUE_H
 #define AVRCPP_TEST_DEQUE_H
+#include <gtest/gtest.h>
+#include "../include/deque"
 // Suppress clangd-tidy complains about static storage in gtest
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
-#include <gtest/gtest.h>
-#include "../include/deque"
 
 TEST(deque, givenBlank_whenConstruct_thenEmptyDeque) {
     auto sut = stl::deque<int>{};
@@ -182,7 +182,7 @@ TEST(deque, givenClassAndSomeElementsOnBack_whenEmplaceFront_thenNoCopiesHappen)
     struct test_struct {
         int v;
         ~test_struct() { dtor_counter++; }
-        test_struct(const test_struct& o) { cpyctor_counter++; }
+        test_struct(const test_struct& o) : v{o.v} { cpyctor_counter++; }
         explicit test_struct(int v) : v{v} { ctor_counter++; }
     };
     auto sut = stl::deque<test_struct>{};
@@ -201,6 +201,103 @@ TEST(deque, givenClassAndSomeElementsOnBack_whenEmplaceFront_thenNoCopiesHappen)
     EXPECT_EQ(0, cpyctor_counter);
     EXPECT_EQ(6, ctor_counter);
     EXPECT_EQ(0, dtor_counter);
+}
+
+TEST(deque, givenSomeValues_whenPopback_thenDtorIsCalled) {
+    static int dtor_counter = 0;
+    static int ctor_counter = 0;
+    static int cpyctor_counter = 0;
+    struct test_struct {
+        int v;
+        ~test_struct() { dtor_counter++; }
+        test_struct(const test_struct& o) : v{o.v} { cpyctor_counter++; }
+        explicit test_struct(int v) : v{v} { ctor_counter++; }
+    };
+    auto sut = stl::deque<test_struct>{};
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+    sut.emplace_back(3);
+    EXPECT_EQ(3, ctor_counter);
+    EXPECT_EQ(3, sut.back().v);
+    sut.pop_back();
+    sut.pop_back();
+    EXPECT_EQ(2, dtor_counter);
+    EXPECT_EQ(1, sut.back().v);
+}
+
+TEST(deque, givenSomeValuesAndPopBack_whenPushBack_thenOverwrite) {
+    static int dtor_counter = 0;
+    static int ctor_counter = 0;
+    static int cpyctor_counter = 0;
+    struct test_struct {
+        int v;
+        ~test_struct() { dtor_counter++; }
+        test_struct(const test_struct& o) : v{o.v} { cpyctor_counter++; }
+        explicit test_struct(int v) : v{v} { ctor_counter++; }
+    };
+    auto sut = stl::deque<test_struct>{};
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+    sut.emplace_back(3);
+    sut.pop_back();
+    sut.pop_back();
+    EXPECT_EQ(2, dtor_counter);
+    EXPECT_EQ(1, sut.back().v);
+    EXPECT_EQ(1, sut.size());
+    sut.emplace_back(4);
+    sut.emplace_back(5);
+    EXPECT_EQ(2, dtor_counter);
+    EXPECT_EQ(5, sut.back().v);
+}
+
+TEST(deque, givenSomeValues_whenPopfront_thenDtorIsCalled) {
+    static int dtor_counter = 0;
+    static int ctor_counter = 0;
+    static int cpyctor_counter = 0;
+    struct test_struct {
+        int v;
+        ~test_struct() { dtor_counter++; }
+        test_struct(const test_struct& o) : v{o.v} { cpyctor_counter++; }
+        explicit test_struct(int v) : v{v} { ctor_counter++; }
+    };
+    auto sut = stl::deque<test_struct>{};
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+    sut.emplace_back(3);
+    EXPECT_EQ(3, ctor_counter);
+    EXPECT_EQ(3, sut.back().v);
+    EXPECT_EQ(1, sut.front().v);
+    sut.pop_front();
+    sut.pop_front();
+    EXPECT_EQ(2, dtor_counter);
+    EXPECT_EQ(3, sut.back().v);
+    EXPECT_EQ(3, sut.front().v);
+    EXPECT_EQ(1, sut.size());
+}
+
+TEST(deque, givenSomeValuesAndPopFront_whenPushBack_thenOverwrite) {
+    static int dtor_counter = 0;
+    static int ctor_counter = 0;
+    static int cpyctor_counter = 0;
+    struct test_struct {
+        int v;
+        ~test_struct() { dtor_counter++; }
+        test_struct(const test_struct& o) : v{o.v} { cpyctor_counter++; }
+        explicit test_struct(int v) : v{v} { ctor_counter++; }
+    };
+    auto sut = stl::deque<test_struct>{};
+    sut.emplace_back(1);
+    sut.emplace_back(2);
+    sut.emplace_back(3);
+    sut.pop_front();
+    sut.pop_front();
+    EXPECT_EQ(2, dtor_counter);
+    EXPECT_EQ(3, sut.front().v);
+    EXPECT_EQ(1, sut.size());
+    sut.emplace_front(4);
+    sut.emplace_front(5);
+    EXPECT_EQ(2, dtor_counter);
+    EXPECT_EQ(5, sut.front().v);
 }
 
 #pragma clang diagnostic pop

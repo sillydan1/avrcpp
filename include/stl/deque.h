@@ -159,6 +159,11 @@ namespace stl {
     }
 
     template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::shrink_to_fit() {
+
+    }
+
+    template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::push_back(const_reference v) {
         new(finish.current)value_type(v);
         if(finish.current != finish.last - 1)
@@ -178,6 +183,12 @@ namespace stl {
     }
 
     template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::pop_back() {
+        finish.current->~T();
+        --finish;
+    }
+
+    template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::push_front(const_reference v) {
         if(start.current != start.first)
             --start;
@@ -194,6 +205,12 @@ namespace stl {
         else
             push_front_auxiliary();
         new(start.current)value_type(v...);
+    }
+
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::pop_front() {
+        start.current->~T();
+        ++start;
     }
 
     template<typename T, size_t deque_chunk_size>
