@@ -209,8 +209,15 @@ namespace stl {
     void deque<T, deque_chunk_size>::pop_back() {
         if(empty())
             return;
-        finish.current->~T();
-        --finish;
+        if(finish.current != finish.first) {
+            finish.current->~T();
+            --finish;
+        } else {
+            free(finish.first);
+            finish.set_node(finish.node-1);
+            finish.current = finish.last-1;
+            finish.current->~T();
+        }
     }
 
     template<typename T, size_t deque_chunk_size>
@@ -236,8 +243,15 @@ namespace stl {
     void deque<T, deque_chunk_size>::pop_front() {
         if(empty())
             return;
-        start.current->~T();
-        ++start;
+        if(start.current != start.last - 1) {
+            start.current->~T();
+            ++start;
+        } else {
+            start.current->~T();
+            free(start.first);
+            start.set_node(start.node + 1);
+            start.current = start.first;
+        }
     }
 
     template<typename T, size_t deque_chunk_size>
