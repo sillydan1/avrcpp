@@ -39,6 +39,10 @@ namespace stl {
                 set_node(map);
             current = first;
         }
+        _deque_iterator(const self_type & o)
+         : current{o.current}, first{o.first}, last{o.last}, node{o.node} {
+
+        }
         void set_node(map_pointer new_node) {
             node = new_node;
             first = *new_node;
@@ -104,6 +108,8 @@ namespace stl {
             return tmp -= n;
         }
         auto operator==(const self_type& o) const -> bool {
+            if(this == &o)
+                return true;
             return node == o.node && current == o.current && first == o.first && last == o.last;
         }
         auto operator!=(const self_type& o) const -> bool {
@@ -116,7 +122,16 @@ namespace stl {
             return max_elems_in_chunk * (node - o.node - 1) +
                    (current - first) + (o.last - o.current);
         }
-        // TODO: <, <=, <=>, =>, > operators
+        auto operator=(const self_type& o) -> self_type& {
+            if(this == &o)
+                return *this;
+            current = o.current;
+            first = o.first;
+            last = o.last;
+            node = o.node;
+            return *this;
+        }
+        // TODO: <, <=, !=, ==, =>, > operators
     };
 
     template<typename T, size_t max_elems_in_chunk>
