@@ -18,6 +18,7 @@
 #ifndef UNIQUE_PTR_HPP
 #define UNIQUE_PTR_HPP
 #include "default_deleters.h"
+#include "utility"
 
 namespace stl {
     /// Unique pointer class. Pointer with unique ownership of
