@@ -109,7 +109,7 @@ namespace stl {
 
         void freeResource() {
             if(resource != nullptr)
-                D{}(resource); // Custom deleter instantiation
+                D{}.free(resource); // Custom deleter instantiation
             delete refCount;
         }
 

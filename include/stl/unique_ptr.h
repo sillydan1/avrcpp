@@ -78,7 +78,7 @@ namespace stl {
     private:
         T_t* resource;
         void freeResource() {
-            D{}(resource);
+            D{}.free(resource);
         }
     };
 
