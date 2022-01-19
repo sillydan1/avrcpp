@@ -25,5 +25,7 @@ extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));
 void* operator new(size_t size);
 void* operator new[](size_t size);
 void operator delete(void * ptr);
+void operator delete(void * ptr, size_t size);
 void operator delete[](void * ptr);
+void operator delete[](void * ptr, size_t size);
 #endif
