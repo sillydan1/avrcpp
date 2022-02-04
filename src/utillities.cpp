@@ -30,11 +30,17 @@ void __cxa_deleted_virtual(void) {
 }
 
 // new/delete allocators
-void* operator new(size_t objsize) {
+auto operator new(size_t objsize) -> void* {
 	return malloc(objsize);
 }
-void* operator new[](size_t objsize) {
+auto operator new(size_t objsize, void* ptr) -> void* {
+    return ptr;
+}
+auto operator new[](size_t objsize) -> void* {
 	return malloc(objsize);
+}
+auto operator new[](size_t objsize, void* ptr) -> void* {
+    return ptr;
 }
 void operator delete(void* obj) {
 	free(obj);

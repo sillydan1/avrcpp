@@ -22,8 +22,10 @@
 extern "C" void __cxa_pure_virtual(void) __attribute__ ((__noreturn__));
 extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));
 /* new/delete allocator functions */
-void* operator new(size_t size);
-void* operator new[](size_t size);
+auto operator new(size_t size) -> void*;
+auto operator new(size_t size, void* ptr) -> void*;
+auto operator new[](size_t size) -> void*;
+auto operator new[](size_t size, void* ptr) -> void*;
 void operator delete(void * ptr);
 void operator delete(void * ptr, size_t size);
 void operator delete[](void * ptr);
