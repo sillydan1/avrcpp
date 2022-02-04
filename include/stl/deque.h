@@ -66,7 +66,8 @@ namespace stl {
         void deallocate_map();
         void copy_map_into(map_pointer other_map, size_t other_map_size) const;
         void reverse_copy_map_into(map_pointer other_map, size_t other_map_size) const;
-        void reallocate_map(size_type nodes_to_add, bool add_at_front);
+        void extend_map(size_type nodes_to_add, bool add_at_front);
+        void shrink_map(size_type nodes_to_add, bool shrink_from_back);
         auto allocate_node() -> pointer;
         void push_back_auxiliary();
         void push_front_auxiliary();
@@ -117,8 +118,9 @@ namespace stl {
 
     template<typename T, size_t deque_chunk_size>
     deque<T, deque_chunk_size>::~deque() {
-        if(size() > 0)
-            destroy_range(start, finish);
+        clear();
+        for(size_type i = 0; i < map_size; i++)
+            free(map[i]);
         deallocate_map();
     }
 
@@ -175,7 +177,7 @@ namespace stl {
 
         if(map_size > 2) { // Destroy all "middle" nodes
             for(auto i = 1; i < map_size-1; i++)
-                destroy_range((pointer)map[i], (pointer)(map[i] + deque_chunk_size));
+                destroy_range((pointer) map[i], (pointer) (map[i] + deque_chunk_size));
         }
 
         if(start.node != finish.node) { // Destroy "end" nodes
@@ -183,7 +185,17 @@ namespace stl {
             destroy_range(finish.first, finish.current);
         } else
             destroy_range(start.current, finish.current);
-        finish = start;
+
+        // deallocate the map and the nodes
+        for(auto i = 0; i < map_size; i++)
+            free(map[i]);
+        deallocate_map();
+
+        map = allocate_map(1);
+        map[0] = allocate_node();
+        map_size = 1;
+        start = iterator{map};
+        finish = iterator{map};
     }
 
     template<typename T, size_t deque_chunk_size>
@@ -213,10 +225,25 @@ namespace stl {
             finish.current->~T();
             --finish;
         } else {
-            free(finish.first);
-            finish.set_node(finish.node-1);
-            finish.current = finish.last-1;
             finish.current->~T();
+            free(finish.first);
+            shrink_map(1, true);
+            finish.current = finish.last-1;
+        }
+    }
+
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::pop_front() {
+        if(empty())
+            return;
+        if(start.current != start.last - 1) {
+            start.current->~T();
+            ++start;
+        } else {
+            start.current->~T();
+            free(start.first);
+            shrink_map(1, false);
+            start.current = start.first;
         }
     }
 
@@ -240,21 +267,6 @@ namespace stl {
     }
 
     template<typename T, size_t deque_chunk_size>
-    void deque<T, deque_chunk_size>::pop_front() {
-        if(empty())
-            return;
-        if(start.current != start.last - 1) {
-            start.current->~T();
-            ++start;
-        } else {
-            start.current->~T();
-            free(start.first);
-            start.set_node(start.node + 1);
-            start.current = start.first;
-        }
-    }
-
-    template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::destroy_range(const iterator& a, const iterator& b) const {
         for(auto p = a; p != b; ++p)
             p.current->~T();
@@ -273,7 +285,7 @@ namespace stl {
 
     template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::push_back_auxiliary() {
-        reallocate_map(1, false);
+        extend_map(1, false);
         *(finish.node + 1) = allocate_node();
         finish.set_node(finish.node + 1);
         finish.current = finish.first;
@@ -281,14 +293,14 @@ namespace stl {
 
     template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::push_front_auxiliary() {
-        reallocate_map(1, true);
+        extend_map(1, true);
         *(start.node - 1) = allocate_node();
         start.set_node(start.node - 1);
         start.current = start.last - 1;
     }
 
     template<typename T, size_t deque_chunk_size>
-    void deque<T, deque_chunk_size>::reallocate_map(size_type nodes_to_add, bool add_at_front) {
+    void deque<T, deque_chunk_size>::extend_map(size_type nodes_to_add, bool add_at_front) {
         auto old_max_index = map_size - 1;
         auto new_map_size = map_size + nodes_to_add;
         auto new_map = allocate_map(new_map_size);
@@ -308,6 +320,23 @@ namespace stl {
 
         start.set_node(new_node_start);
         finish.set_node(new_node_start + old_max_index);
+    }
+
+    template<typename T, size_t deque_chunk_size>
+    void deque<T, deque_chunk_size>::shrink_map(size_type nodes_to_shrink, bool shrink_from_back) {
+        auto new_map_size = map_size - nodes_to_shrink;
+        auto new_map = allocate_map(new_map_size);
+        if(shrink_from_back)
+            copy_map_into(new_map, new_map_size);
+        else
+            reverse_copy_map_into(new_map, new_map_size);
+        deallocate_map();
+        map = new_map;
+        map_size = new_map_size;
+
+        map_pointer new_node_start = &new_map[0];
+        start.set_node(new_node_start);
+        finish.set_node(new_node_start + new_map_size - 1);
     }
 
     template<typename T, size_t deque_chunk_size>
