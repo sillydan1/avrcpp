@@ -18,7 +18,7 @@
 #ifndef AVRCPP_VECTOR_H
 #define AVRCPP_VECTOR_H
 #include "default_includes"
-#include "utility"
+#include "../utility"
 
 namespace stl {
     template<typename T>
@@ -26,6 +26,7 @@ namespace stl {
         static constexpr size_t default_capacity = 1;
     public:
         using iterator = T*;
+        using const_iterator = const T*;
         vector();
         explicit vector(unsigned int size);
         explicit vector(int size);
@@ -44,6 +45,8 @@ namespace stl {
         auto back() -> T&;
         void push_back(const T& value);
         void emplace_back(T&& value);
+        void erase(iterator pos);
+        void erase(iterator first, iterator last);
         void pop_back();
         void reserve(unsigned int new_cap);
         void resize(unsigned int size);
@@ -167,6 +170,21 @@ namespace stl {
         if(count <= 0)
             return;
         data[count--].~T();
+    }
+
+    template<class T>
+    void vector<T>::erase(iterator pos) {
+        if (pos == end())
+            return;
+        for (auto i = pos; i + 1 != end(); ++i)
+            *i = *(i + 1);
+        pop_back();
+    }
+
+    template<class T>
+    void vector<T>::erase(iterator first, iterator last) {
+        for(auto it = first; it != last; it++)
+            erase(it);
     }
 
     template<class T>
