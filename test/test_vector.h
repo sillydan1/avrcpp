@@ -44,22 +44,23 @@ TEST(vector, givenElements_whenEraseBegin_thenRemoved) {
     EXPECT_EQ(0, sut.size());
 }
 
-TEST(vector, givenElements_whenEraseRange_thenRemoved) {
-    auto sut = stl::vector<int>();
-    sut.push_back(1);
-    sut.push_back(2);
-    sut.push_back(3);
-    EXPECT_EQ(3, sut.size());
-    sut.erase(sut.begin(), sut.begin()+2);
-    EXPECT_EQ(0, sut.size());
-}
-
 TEST(vector, givenElements_whenInsertingAtIndex_thenItemIsInserted) {
     auto sut = stl::vector<int>();
     sut.push_back(1);
-    sut.push_back(2);
     sut.push_back(3);
-    // TODO: sut.insert
+    sut.push_back(4);
+    auto it = sut.begin();
+    EXPECT_EQ(1, *(it++));
+    EXPECT_EQ(3, *(it++));
+    EXPECT_EQ(4, *(it++));
+    EXPECT_EQ(sut.end(), it);
+    sut.insert(sut.begin()+1, 2);
+    it = sut.begin();
+    EXPECT_EQ(1, *(it++));
+    EXPECT_EQ(2, *(it++));
+    EXPECT_EQ(3, *(it++));
+    EXPECT_EQ(4, *(it++));
+    EXPECT_EQ(sut.end(), it);
 }
 
 #pragma clang diagnostic pop
