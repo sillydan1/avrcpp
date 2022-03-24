@@ -17,7 +17,7 @@
  * */
 #ifndef UTILLITIES_H
 #define UTILLITIES_H
-#include <stddef.h>
+#include "../include/stl/default_includes"
 /* Compiler extensions */
 extern "C" void __cxa_pure_virtual(void) __attribute__ ((__noreturn__));
 extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));
