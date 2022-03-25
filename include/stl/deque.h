@@ -200,8 +200,6 @@ namespace stl {
 
     template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::push_back(const_reference v) {
-        if(map_size == 0)
-            reallocate_map(1, false);
         new(finish.current)value_type(v);
         if(finish.current != finish.last - 1)
             ++finish;
@@ -212,8 +210,6 @@ namespace stl {
     template<typename T, size_t deque_chunk_size>
     template<typename... Args>
     void deque<T, deque_chunk_size>::emplace_back(Args... v) {
-        if(map_size == 0)
-            reallocate_map(1, false);
         new(finish.current)value_type(v...);
         if(finish.current != finish.last - 1)
             ++finish;
@@ -253,8 +249,6 @@ namespace stl {
 
     template<typename T, size_t deque_chunk_size>
     void deque<T, deque_chunk_size>::push_front(const_reference v) {
-        if(map_size == 0)
-            reallocate_map(1, false);
         if(start.current != start.first)
             --start;
         else
@@ -265,8 +259,6 @@ namespace stl {
     template<typename T, size_t deque_chunk_size>
     template<typename... Args>
     void deque<T, deque_chunk_size>::emplace_front(Args... v) {
-        if(map_size == 0)
-            reallocate_map(1, false);
         if(start.current != start.first)
             --start;
         else
