@@ -77,5 +77,17 @@ TEST(vector, givenElements_whenErasingAndInsertingInsertingAtIndex_thenItemIsRep
     EXPECT_EQ(sut.end(), it);
 }
 
+TEST(vector, givenElements_whenErasingEnd_thenLastElementIsRemoved) {
+    auto sut = stl::vector<int>();
+    sut.push_back(1);
+    sut.push_back(2);
+    sut.push_back(3);
+    sut.erase(sut.end());
+    auto it = sut.begin();
+    EXPECT_EQ(1, *(it++));
+    EXPECT_EQ(2, *(it++));
+    EXPECT_EQ(sut.end(), it);
+}
+
 #pragma clang diagnostic pop
 #endif

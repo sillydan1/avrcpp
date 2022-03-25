@@ -174,8 +174,6 @@ namespace stl {
 
     template<class T>
     void vector<T>::erase(iterator pos) {
-        if(pos == end())
-            return;
         for(auto i = pos; i + 1 != end(); ++i)
             *i = *(i + 1);
         pop_back();
