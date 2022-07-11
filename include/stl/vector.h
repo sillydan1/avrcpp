@@ -54,6 +54,7 @@ namespace stl {
         auto operator=(const vector<T>&) -> vector<T>&;
         auto operator=(vector<T>&&) noexcept -> vector<T>&;
         void clear();
+        auto get() -> const T* const;
     private:
         unsigned int count{};
         unsigned int max_count{};
@@ -246,6 +247,11 @@ namespace stl {
         count = 0;
         delete[] data;
         data = nullptr;
+    }
+
+    template<class T>
+    auto vector<T>::get() -> const T* const {
+        return data;
     }
 
     template<class T>
