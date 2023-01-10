@@ -18,7 +18,7 @@
 #ifndef AVRCPP_VECTOR_H
 #define AVRCPP_VECTOR_H
 #include "default_includes"
-#include "utility"
+#include "../utility"
 
 namespace stl {
     template<typename T>
@@ -26,6 +26,7 @@ namespace stl {
         static constexpr size_t default_capacity = 1;
     public:
         using iterator = T*;
+        using const_iterator = const T*;
         vector();
         explicit vector(unsigned int size);
         explicit vector(int size);
@@ -44,6 +45,8 @@ namespace stl {
         auto back() -> T&;
         void push_back(const T& value);
         void emplace_back(T&& value);
+        void erase(iterator pos);
+        void insert(iterator pos, const T& value);
         void pop_back();
         void reserve(unsigned int new_cap);
         void resize(unsigned int size);
@@ -51,6 +54,7 @@ namespace stl {
         auto operator=(const vector<T>&) -> vector<T>&;
         auto operator=(vector<T>&&) noexcept -> vector<T>&;
         void clear();
+        auto get() -> const T* const;
     private:
         unsigned int count{};
         unsigned int max_count{};
@@ -170,6 +174,31 @@ namespace stl {
     }
 
     template<class T>
+    void vector<T>::erase(iterator pos) {
+        for(auto i = pos; i + 1 != end(); ++i)
+            *i = *(i + 1);
+        pop_back();
+    }
+
+    template<typename T>
+    void vector<T>::insert(iterator pos, const T& value) {
+        if(pos == end()) {
+            push_back(value);
+            return;
+        }
+        if(count >= max_count)
+            reserve(max_count << 1u);
+
+        T v = value;
+        count++;
+        for(auto it = pos; it != end(); it++) {
+            auto cpy = *it;
+            *it = v;
+            v = cpy;
+        }
+    }
+
+    template<class T>
     void vector<T>::reserve(unsigned int new_cap) {
         if (data == nullptr) {
             count = 0;
@@ -218,6 +247,11 @@ namespace stl {
         count = 0;
         delete[] data;
         data = nullptr;
+    }
+
+    template<class T>
+    auto vector<T>::get() -> const T* const {
+        return data;
     }
 
     template<class T>
