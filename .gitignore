@@ -48,3 +48,6 @@ CTestTestfile.cmake
 _deps
 cmake-build-debug
 cmake-build-release
+Debug
+Release
+
