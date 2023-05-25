@@ -46,6 +46,7 @@ namespace stl {
         void push_back(const T& value);
         void emplace_back(T&& value);
         void erase(iterator pos);
+        void erase_index(unsigned int index);
         void insert(iterator pos, const T& value);
         void pop_back();
         void reserve(unsigned int new_cap);
@@ -176,8 +177,19 @@ namespace stl {
     template<class T>
     void vector<T>::erase(iterator pos) {
         for(auto i = pos; i + 1 != end(); ++i)
-            *i = stl::move(*(i + 1));
+            *i = *(i + 1);
         pop_back();
+    }
+
+    template<class T>
+    void vector<T>::erase_index(unsigned int index) {
+        if(index == size()-1)
+            pop_back();
+        else if(index < size()-1) {
+            for(auto i = index; i + 1 != size(); ++i)
+                data[i] = data[i+1];
+            pop_back();
+        }
     }
 
     template<typename T>
