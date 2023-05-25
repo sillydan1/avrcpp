@@ -176,7 +176,7 @@ namespace stl {
     template<class T>
     void vector<T>::erase(iterator pos) {
         for(auto i = pos; i + 1 != end(); ++i)
-            *i = *(i + 1);
+            *i = stl::move(*(i + 1));
         pop_back();
     }
 
